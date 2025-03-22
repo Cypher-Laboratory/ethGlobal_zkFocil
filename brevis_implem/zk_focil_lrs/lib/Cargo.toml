@@ -1,11 +1,19 @@
 [package]
-name = "fibonacci-lib"
+name = "lsag"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bls12_381 = "0.8.0"
-rand = "0.9.0"
-rand_core = "0.9.3"
-serde = { workspace = true }
+elliptic-curve = "0.13.8"
+sha3 = "0.10.6"
 sha2 = "0.10.8"
+k256 = {version ="0.13.3", features=["hash2curve", "expose-field"]}
+hex = "0.4"
+num-bigint = "0.4"
+num-traits = "0.2"
+regex = "1.10.6"
+base64 = "0.22.1"
+serde = { workspace = true }
+serde_json = "1.0.128"
+rand_core = "0.9.3"
+rand = "0.9.0"
