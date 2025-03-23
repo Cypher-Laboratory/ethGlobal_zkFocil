@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import axios from 'axios';
-import { Block, Transaction, ZKProofResponse } from '../types';
+import { Block, Transaction, ZKPrivateData, ZKProofResponse } from '../types';
 
 /**
  * Fetches a ZK proof from the local server
@@ -15,9 +15,29 @@ export const fetchZKProof = async (address: string): Promise<ZKProofResponse> =>
     console.error('Error fetching ZK proof:', error);
     
     // Mock the response in case the server is not available
+    const timestamp = Math.floor(Date.now() / 1000);
+    const randomness = ethers.utils.hexlify(ethers.utils.randomBytes(16));
+    const addressBytes = ethers.utils.arrayify(ethers.utils.keccak256(ethers.utils.toUtf8Bytes(address)));
+    
+    // Create deterministic but seemingly random eligibility score
+    const sum = addressBytes.reduce((acc, val) => acc + val, 0);
+    const eligibilityScore = (sum % 100) / 100; // 0-0.99
+    const threshold = 0.3;
+    const validatorWeight = 1 + (sum % 10) / 10; // 1.0-1.9
+    
+    // Elected if eligibility score > threshold
+    const elected = eligibilityScore > threshold;
+    
     return {
-      proof: `mock-zk-proof-${ethers.utils.keccak256(ethers.utils.toUtf8Bytes(address + Date.now()))}`,
-      elected: Math.random() > 0.3 // 70% chance of being elected
+      proof: `mock-zk-proof-${ethers.utils.keccak256(ethers.utils.toUtf8Bytes(address + timestamp))}`,
+      elected,
+      privateData: {
+        randomness,
+        threshold,
+        eligibilityScore,
+        validatorWeight,
+        timestamp
+      }
     };
   }
 };
@@ -29,6 +49,7 @@ export const fetchZKProof = async (address: string): Promise<ZKProofResponse> =>
  * @param previousHash Hash of the previous block
  * @param creator Address of the block creator
  * @param zkProof ZK proof string
+ * @param zkPrivateData Optional private data for ZK proof
  * @returns The newly created block
  */
 export const createBlock = (
@@ -36,7 +57,8 @@ export const createBlock = (
   transactions: Transaction[],
   previousHash: string,
   creator: string,
-  zkProof: string
+  zkProof: string,
+  zkPrivateData?: ZKPrivateData
 ): Block => {
   const timestamp = Date.now();
   
@@ -51,7 +73,8 @@ export const createBlock = (
     previousHash,
     creator,
     zkProof,
-    transactions
+    transactions,
+    zkPrivateData
   };
 };
 

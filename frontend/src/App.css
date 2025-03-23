@@ -245,6 +245,21 @@ body {
   background-color: #f5faff;
 }
 
+.validator-block {
+  border-left: 3px solid #e74c3c;
+}
+
+.validator-flag {
+  background-color: #e74c3c;
+  color: white;
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  border-radius: 3px;
+  margin-left: 10px;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
 .block-header {
   display: flex;
   flex-direction: column;
@@ -266,6 +281,65 @@ body {
   margin-top: 15px;
   padding-top: 15px;
   border-top: 1px dashed var(--card-border);
+}
+
+.block-details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.zk-private-data {
+  background-color: #f5f5f5;
+  border-radius: 6px;
+  padding: 15px;
+  margin-top: 15px;
+  border: 1px solid #e0e0e0;
+}
+
+.zk-private-data h4 {
+  margin-bottom: 10px;
+  color: var(--accent-color);
+  font-size: 0.9rem;
+}
+
+.zk-data-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+@media (min-width: 768px) {
+  .zk-data-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.zk-data-grid p {
+  margin-bottom: 5px;
+  font-size: 0.85rem;
+}
+
+.inclusion-info {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: rgba(46, 204, 113, 0.1);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.inclusion-info p {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.other-validator-note {
+  margin-top: 5px;
+  margin-left: 22px;
+  font-style: italic;
+  color: #666;
+  font-size: 0.85rem;
 }
 
 /* Transaction List */
@@ -303,6 +377,49 @@ body {
 
 .transaction-table tr:hover {
   background-color: #f9f9f9;
+}
+
+.validator-transaction {
+  background-color: rgba(53, 152, 219, 0.15) !important;
+  font-weight: 500;
+}
+
+.validator-transaction:hover {
+  background-color: rgba(53, 152, 219, 0.25) !important;
+}
+
+.validator-badge {
+  background-color: #3498db;
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin-right: 5px;
+  font-weight: bold;
+}
+
+.inclusion-badge {
+  background-color: #2ecc71;
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin-right: 5px;
+  font-weight: bold;
+}
+
+.inclusion-list-transaction {
+  background-color: rgba(46, 204, 113, 0.15) !important;
+  font-weight: 500;
+}
+
+.inclusion-list-transaction:hover {
+  background-color: rgba(46, 204, 113, 0.25) !important;
+}
+
+.highlight-address {
+  color: #e74c3c;
+  font-weight: bold;
 }
 
 /* Blockchain Controls */

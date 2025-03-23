@@ -70,7 +70,10 @@ function App() {
           </div>
           
           <div className="grid-item blocks">
-            <BlockList blocks={blocks} />
+            <BlockList 
+              blocks={blocks} 
+              currentNodeAddress={addresses[currentNodeIndex]}
+            />
           </div>
           
           <div className="grid-item transactions">
