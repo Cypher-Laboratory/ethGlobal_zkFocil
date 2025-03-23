@@ -14,8 +14,7 @@ use crate::utils::serialize_point::serialize_point;
 use crate::utils::serialize_ring::serialize_ring;
 
 use k256::{AffinePoint, Scalar};
-use rand;
-use rand_core::RngCore;
+use rand::RngCore;
 use std::fs;
 
 #[derive(Debug)]
@@ -53,13 +52,14 @@ pub fn sign_lsag(
     let message_digest = keccak_256(&[message.clone()]);
     let serialized_ring = serialize_ring(ring);
 
+    let mut rng = rand::thread_rng();
     let mut random_bytes = [0u8; 32];
-    rand::rng().fill_bytes(&mut random_bytes);
-    let alpha = Scalar::from_repr(random_bytes.into()).unwrap_or_else(|| {
+    rng.fill_bytes(&mut random_bytes);
+    let alpha = Scalar::from_repr_vartime(random_bytes.into()).unwrap_or_else(|| {
         // In the rare case we get zero, try again
         let mut new_bytes = [0u8; 32];
-        rand::rng().fill_bytes(&mut new_bytes);
-        Scalar::from_repr(new_bytes.into()).unwrap()
+        rng.fill_bytes(&mut new_bytes);
+        Scalar::from_repr_vartime(new_bytes.into()).unwrap()
     });
 
     let mapped = hash_to_secp256k1(
@@ -72,9 +72,10 @@ pub fn sign_lsag(
 
     for i in 0..ring.len() {
         if i != signer_details.index {
+            let mut rng = rand::thread_rng();
             let mut bytes = [0u8; 32];
-            rand::rng().fill_bytes(&mut bytes);
-            responses[i] = Scalar::from_repr(bytes.into()).unwrap_or(Scalar::ONE);
+            rng.fill_bytes(&mut bytes);
+            responses[i] = Scalar::from_repr_vartime(bytes.into()).unwrap_or(Scalar::ONE);
         }
     }
 
