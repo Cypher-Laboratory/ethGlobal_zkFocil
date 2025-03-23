@@ -1,6 +1,6 @@
 use elliptic_curve::AffinePoint;
-use k256::elliptic_curve::hash2curve::{ExpandMsgXmd, GroupDigest};
 use k256::Secp256k1;
+use k256::elliptic_curve::hash2curve::{ExpandMsgXmd, GroupDigest};
 use sha2::Sha256;
 
 pub fn hash_to_secp256k1(message: String) -> AffinePoint<Secp256k1> {
