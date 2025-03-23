@@ -75,7 +75,8 @@ npm start
 
 ## 📊 Benchmarks
 
-Our benchmarks show that zkFOCIL adds minimal overhead to the block creation process while providing significant privacy benefits.
+Our benchmarks show that zkFOCIL adds significant overhead to the block creation process, this implementation requires much more work and optimization than what we could provide in 2 days.
+With additional efforts, we believe that zkFOCIL could be a viable solution for private inclusion lists on Ethereum.
 
 ## 📄 License
 
