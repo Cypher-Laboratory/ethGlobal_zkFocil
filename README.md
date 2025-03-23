@@ -46,7 +46,6 @@ The project consists of two main components:
 2. **Educational Frontend** 📚
    - Interactive interface explaining the protocol
    - Visualization of private inclusion list creation
-   - Demonstrations of privacy and censorship resistance properties
    - Tools to help judges understand the technical significance of our innovation
 
 ## 🌍 Impact on Ethereum
@@ -62,13 +61,6 @@ This implementation substantially improves Ethereum's resistance to transaction 
 ```bash
 # Clone the repository
 git clone https://github.com/Cypher-Laboratory/ethGlobal_zkFOCIL.git
-
-# Install dependencies
-cd ethGlobal_zkFOCIL
-npm install
-
-# Run the demo
-npm start
 ```
 
 ## 📊 Benchmarks
