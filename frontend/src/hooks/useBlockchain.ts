@@ -22,15 +22,15 @@ export const useBlockchain = () => {
   const [isCreatingBlock, setIsCreatingBlock] = useState<boolean>(false);
   const [isRunning, setIsRunning] = useState<boolean>(true);
   const [blockTime, setBlockTime] = useState<number>(DEFAULT_BLOCK_INTERVAL);
-  
+
   // Use ref to prevent issues with stale closures in the interval
   const blocksRef = useRef<Block[]>(blocks);
   const pendingTransactionsRef = useRef<Transaction[]>(pendingTransactions);
-  
+
   useEffect(() => {
     blocksRef.current = blocks;
   }, [blocks]);
-  
+
   useEffect(() => {
     pendingTransactionsRef.current = pendingTransactions;
   }, [pendingTransactions]);
@@ -40,17 +40,17 @@ export const useBlockchain = () => {
     // Format time as HH:MM:SS
     const now = new Date();
     const timeString = now.toTimeString().split(' ')[0];
-    
+
     console.log(message); // Add console logging for debugging
     setBlockCreationLog(prev => [...prev, `[${timeString}] ${message}`]);
   }, []);
-  
+
   // Determine if the current node should be elected as a validator 
   // (5 out of 7 ratio on average)
   const shouldBeElected = useCallback((address: string): boolean => {
     const addressBytes = ethers.utils.arrayify(ethers.utils.keccak256(ethers.utils.toUtf8Bytes(address)));
     const sum = addressBytes.reduce((acc, val) => acc + val, 0);
-    
+
     // We want roughly 5/7 blocks to be created by us
     return (sum % 7) < 5;
   }, []);
@@ -60,17 +60,17 @@ export const useBlockchain = () => {
     const initializeBlockchain = async () => {
       try {
         console.log("Initializing blockchain...");
-        
+
         // Generate a smaller number of keys for testing to avoid browser freezing
         const keys = generatePrivateKeys(50); // Reduced from 256 to 50
         setPrivateKeys(keys);
         console.log("Generated private keys");
-        
+
         // Derive addresses from private keys
         const derivedAddresses = deriveAddresses(keys);
         setAddresses(derivedAddresses);
         console.log("Derived addresses");
-        
+
         // Create genesis block
         const genesisTransactions: Transaction[] = [];
         const genesisBlock = createBlock(
@@ -80,17 +80,17 @@ export const useBlockchain = () => {
           derivedAddresses[0],
           'genesis-zk-proof'
         );
-        
+
         setBlocks([genesisBlock]);
         blocksRef.current = [genesisBlock];
         console.log("Created genesis block");
-        
+
         // Generate initial pending transactions
         const initialTransactions = generateRandomTransactions(derivedAddresses, 15);
         setPendingTransactions(initialTransactions);
         pendingTransactionsRef.current = initialTransactions;
         console.log("Generated initial transactions");
-        
+
         // Set loading to false to render the main interface
         setIsLoading(false);
         console.log("Initialization complete!");
@@ -111,96 +111,88 @@ export const useBlockchain = () => {
     }
 
     setIsCreatingBlock(true);
-    
+
     try {
       // Use the current blocks and pending transactions from ref to avoid stale closure issues
       const currentBlocks = blocksRef.current;
       const currentPendingTransactions = pendingTransactionsRef.current;
-      
+
       if (currentBlocks.length === 0) {
         console.error("No blocks available");
         return;
       }
-      
+
       // Rotate through nodes (addresses) to simulate different block creators
       const nextNodeIndex = (currentNodeIndex + 1) % addresses.length;
       setCurrentNodeIndex(nextNodeIndex);
-      
+
       const blockCreator = addresses[nextNodeIndex];
-      
+
       // Determine if this should be our validator (approximately 5 out of 7 blocks)
       const isOurValidator = shouldBeElected(blockCreator);
-      
+
       addLog(`Node ${blockCreator.substring(0, 8)}... attempting to create block #${currentBlocks.length}`);
-      
+
       // Generate more random transactions if pool is getting low
       if (currentPendingTransactions.length < TRANSACTIONS_PER_BLOCK * 2) {
         const newTransactions = generateRandomTransactions(addresses, 10);
         setPendingTransactions(prev => [...prev, ...newTransactions]);
         addLog(`Generated ${newTransactions.length} new transactions`);
       }
-      
+
       // Request ZK proof from server (or mock)
       addLog('Requesting ZK proof from localhost:3001...');
       const zkProofResponse = await fetchZKProof(blockCreator);
-      
+
       // For our validator, we want higher probability of being elected
       if (isOurValidator) {
         // Override the election result if needed
         zkProofResponse.elected = true;
-        if (zkProofResponse.privateData) {
-          zkProofResponse.privateData.eligibilityScore = Math.max(zkProofResponse.privateData.eligibilityScore, zkProofResponse.privateData.threshold + 0.1);
-        }
         addLog(`This is your validator - ensuring election for inclusion list creation`);
       }
-      
+
       if (!zkProofResponse.elected) {
         addLog(`Node ${blockCreator.substring(0, 8)}... was not elected by ZK proof`);
-        
+
         if (zkProofResponse.privateData) {
-          const { eligibilityScore, threshold, validatorWeight } = zkProofResponse.privateData;
-          addLog(`Eligibility score: ${eligibilityScore.toFixed(6)}, Threshold: ${threshold.toFixed(6)}, Weight: ${validatorWeight.toFixed(2)}`);
+          const { validatorInclusionProof, ringSignature, executionTime } = zkProofResponse.privateData;
+          addLog(`Inclusion proof: ${validatorInclusionProof.substring(0, 15)}..., Ring size: ${ringSignature.ringSize}, Execution time: ${executionTime} seconds`);
         }
-        
+
         setIsCreatingBlock(false);
         return;
       }
-      
+
       addLog(`Node ${blockCreator.substring(0, 8)}... was elected! Creating inclusion list...`);
-      
-      if (zkProofResponse.privateData) {
-        const { eligibilityScore, threshold, validatorWeight } = zkProofResponse.privateData;
-        addLog(`Eligibility score: ${eligibilityScore.toFixed(6)}, Threshold: ${threshold.toFixed(6)}, Weight: ${validatorWeight.toFixed(2)}`);
-      }
-      
-      
+
+
       // Select transactions for new block
       // If it's our validator, include exactly 4 transactions marked as ours
       // plus 6 additional transactions (as if they were included by another validator)
       let transactionsForBlock;
-      
+
       if (isOurValidator) {
         // For our validator, always include exactly 4 transactions
         const transactionsToInclude = Math.min(4, currentPendingTransactions.length);
         let ourTransactions = [];
-        
+
         if (transactionsToInclude < 4) {
           // Generate additional transactions if needed to reach 4
           const additionalNeeded = 4 - transactionsToInclude;
           const additionalTransactions = generateRandomTransactions(addresses, additionalNeeded);
-          
+
           // Combine existing and new transactions, marking them as included by our validator
           ourTransactions = [
             ...currentPendingTransactions.slice(0, transactionsToInclude),
             ...additionalTransactions
           ].map(tx => ({ ...tx, includedByValidator: true }));
-          
+
           // Update the pending transactions to remove ones we used
           setPendingTransactions(prev => {
             const remaining = prev.slice(transactionsToInclude);
             return remaining;
           });
-          
+
           addLog(`Generated ${additionalNeeded} additional transactions to reach 4 for your inclusion list`);
         } else {
           // We have enough transactions, take exactly 4
@@ -208,25 +200,25 @@ export const useBlockchain = () => {
             ...tx,
             includedByValidator: true
           }));
-          
+
           // Remove the 4 transactions we used from pending pool
           setPendingTransactions(prev => prev.slice(4));
         }
-        
+
         // Now add 6 more transactions as if they were included by another validator
         let otherValidatorTxs = [];
-        
+
         // Check if we have enough in the pending pool
         if (currentPendingTransactions.length > 4) {
           // Use some from the pending pool
           const remainingPendingCount = currentPendingTransactions.length - 4;
           const txsFromPool = Math.min(6, remainingPendingCount);
-          
+
           otherValidatorTxs = currentPendingTransactions.slice(4, 4 + txsFromPool);
-          
+
           // Remove these from pending pool
           setPendingTransactions(prev => prev.slice(4 + txsFromPool));
-          
+
           // If we still need more, generate them
           if (txsFromPool < 6) {
             const moreNeeded = 6 - txsFromPool;
@@ -239,18 +231,18 @@ export const useBlockchain = () => {
           otherValidatorTxs = generateRandomTransactions(addresses, 6);
           addLog(`Generated 6 additional transactions for other validators`);
         }
-        
+
         // Combine our transactions and other validators' transactions
         transactionsForBlock = [...ourTransactions, ...otherValidatorTxs];
-        
+
         addLog(`Your validator created an inclusion list with exactly 4 transactions + 6 from other validators`);
       } else {
         // For other validators, use the regular TRANSACTIONS_PER_BLOCK
         // Let's make it 10 total transactions for consistency with our validator blocks
         const txsToInclude = Math.min(TRANSACTIONS_PER_BLOCK, currentPendingTransactions.length);
-        
+
         transactionsForBlock = currentPendingTransactions.slice(0, txsToInclude);
-        
+
         // If we need more to reach 10, generate them
         if (txsToInclude < TRANSACTIONS_PER_BLOCK) {
           const additionalNeeded = TRANSACTIONS_PER_BLOCK - txsToInclude;
@@ -258,11 +250,11 @@ export const useBlockchain = () => {
           transactionsForBlock = [...transactionsForBlock, ...additionalTxs];
           addLog(`Generated ${additionalNeeded} additional transactions to reach ${TRANSACTIONS_PER_BLOCK}`);
         }
-        
+
         // Remove selected transactions from pending pool
         setPendingTransactions(prev => prev.slice(txsToInclude));
       }
-      
+
       // Create the new block
       const previousBlock = currentBlocks[currentBlocks.length - 1];
       const newBlock = createBlock(
@@ -273,16 +265,16 @@ export const useBlockchain = () => {
         zkProofResponse.proof,
         zkProofResponse.privateData
       );
-      
+
       // Simulate broadcasting the block
       addLog(`Broadcasting block #${newBlock.id} to the network...`);
       await broadcastBlock(newBlock);
-      
+
       // Add the new block to the chain
       setBlocks(prev => [...prev, newBlock]);
-      
+
       addLog(`Block #${newBlock.id} created successfully with ${newBlock.transactions.length} transactions`);
-      
+
       if (isOurValidator) {
         addLog(`Your validator successfully included ${newBlock.transactions.length} transactions in the block`);
       }
@@ -299,7 +291,7 @@ export const useBlockchain = () => {
     addLog,
     shouldBeElected
   ]);
-  
+
   // Toggle blockchain running state
   const toggleRunning = useCallback(() => {
     setIsRunning(prev => {
@@ -313,8 +305,8 @@ export const useBlockchain = () => {
   // Update block time
   const updateBlockTime = useCallback((newBlockTimeMs: number) => {
     setBlockTime(newBlockTimeMs);
-    debugLog(`Block time updated to ${newBlockTimeMs}ms (${newBlockTimeMs/1000} seconds)`);
-    addLog(`Block time updated to ${newBlockTimeMs/1000} seconds`);
+    debugLog(`Block time updated to ${newBlockTimeMs}ms (${newBlockTimeMs / 1000} seconds)`);
+    addLog(`Block time updated to ${newBlockTimeMs / 1000} seconds`);
   }, [addLog]);
 
   // Schedule block creation
@@ -322,7 +314,7 @@ export const useBlockchain = () => {
     if (isLoading || !isRunning) {
       return; // Don't start the interval if loading or not running
     }
-    
+
     debugLog(`Setting up block creation interval: ${blockTime}ms`);
     const blockInterval = setInterval(() => {
       createNewBlock();

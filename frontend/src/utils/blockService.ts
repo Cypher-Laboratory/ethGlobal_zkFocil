@@ -23,20 +23,20 @@ export const fetchZKProof = async (address: string): Promise<ZKProofResponse> =>
     const sum = addressBytes.reduce((acc, val) => acc + val, 0);
     const eligibilityScore = (sum % 100) / 100; // 0-0.99
     const threshold = 0.3;
-    const validatorWeight = 1 + (sum % 10) / 10; // 1.0-1.9
     
     // Elected if eligibility score > threshold
     const elected = eligibilityScore > threshold;
     
     return {
-      proof: `mock-zk-proof-${ethers.utils.keccak256(ethers.utils.toUtf8Bytes(address + timestamp))}`,
+      proof: `${ethers.utils.keccak256(ethers.utils.toUtf8Bytes(address + timestamp))}`,
       elected,
       privateData: {
-        randomness,
-        threshold,
-        eligibilityScore,
-        validatorWeight,
-        timestamp
+        validatorInclusionProof: `${ethers.utils.keccak256(ethers.utils.toUtf8Bytes(address + timestamp + Math.random()))}`,
+        ringSignature: {
+          ringSize: 1,
+          c0: `${ethers.utils.keccak256(ethers.utils.toUtf8Bytes(randomness))}`
+        },
+        executionTime: 100
       }
     };
   }

@@ -26,12 +26,15 @@ const BlockList: React.FC<BlockListProps> = ({ blocks, currentNodeAddress }) => 
   
   const shortenAddress = (address: string) => `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
   
+  // Create a sorted copy of the blocks array in reverse order (higher IDs first)
+  const sortedBlocks = [...blocks].sort((a, b) => b.id - a.id);
+  
   return (
     <div className="block-list">
       <h2>Blocks ({blocks.length})</h2>
       {blocks.length > 0 ? (
         <div className="blocks-container">
-          {blocks.map((block) => (
+          {sortedBlocks.map((block) => (
             <div 
               key={block.id} 
               className={`block-card ${expandedBlockId === block.id ? 'expanded' : ''} ${block.creator === currentNodeAddress ? 'validator-block' : ''}`}
@@ -61,13 +64,12 @@ const BlockList: React.FC<BlockListProps> = ({ blocks, currentNodeAddress }) => 
                       <h4>ZK Private Data (Used for Proof Generation)</h4>
                       <div className="zk-data-grid">
                         <div>
-                          <p><strong>Randomness:</strong> {block.zkPrivateData.randomness}</p>
-                          <p><strong>Timestamp:</strong> {new Date(block.zkPrivateData.timestamp * 1000).toLocaleString()}</p>
+                          <p><strong>Validator inclusion proof:</strong> {block.zkPrivateData.validatorInclusionProof.slice(0, 32) + '...'}</p>
+                          <p><strong>Anonymity set size:</strong> {block.zkPrivateData.ringSignature.ringSize}</p>
                         </div>
                         <div>
-                          <p><strong>Eligibility Score:</strong> {block.zkPrivateData.eligibilityScore.toFixed(6)}</p>
-                          <p><strong>Threshold:</strong> {block.zkPrivateData.threshold.toFixed(6)}</p>
-                          <p><strong>Validator Weight:</strong> {block.zkPrivateData.validatorWeight.toFixed(2)}</p>
+                          <p><strong>Challenge:</strong> {block.zkPrivateData.ringSignature.c0.slice(0, 32) + '...'}</p>
+                          <p><strong>Proving time:</strong> {block.zkPrivateData.executionTime} seconds</p>
                         </div>
                       </div>
                     </div>

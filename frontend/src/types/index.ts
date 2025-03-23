@@ -20,11 +20,12 @@ export interface Block {
 }
 
 export interface ZKPrivateData {
-  randomness: string;
-  threshold: number;
-  eligibilityScore: number;
-  validatorWeight: number;
-  timestamp: number;
+  validatorInclusionProof: string;
+  ringSignature: {
+    ringSize: number;
+    c0: string;
+  };
+  executionTime: number;
 }
 
 export interface ZKProofResponse {
