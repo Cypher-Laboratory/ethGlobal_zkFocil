@@ -1,4 +1,4 @@
-# SP1 LSAG Ring Signature Implementation
+# Succinct LSAG Ring Signature Implementation
 
 This project implements Linkable Spontaneous Anonymous Group (LSAG) ring signatures in the SP1 zkVM, enabling efficient and cryptographically secure verification of ring signatures in a zero-knowledge context.
 
@@ -52,6 +52,8 @@ cp .env.example .env
 ```
 
 Then, set the `SP1_PROVER` environment variable to `network` and set the `NETWORK_PRIVATE_KEY` environment variable to your whitelisted private key.
+
+> ⚠️ **WARNING**: A sample private key is provided in the `.env.example` file. DO NOT deposit any funds to the associated address as this key is publicly available in the repository.
 
 For example, to generate a proof using the prover network, run the following command:
 ```sh
