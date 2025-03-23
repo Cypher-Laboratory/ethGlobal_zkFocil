@@ -1,6 +1,6 @@
 use elliptic_curve::sec1::FromEncodedPoint;
 use hex::{self, FromHex};
-use k256::{elliptic_curve::sec1::ToEncodedPoint, AffinePoint, EncodedPoint};
+use k256::{AffinePoint, EncodedPoint, elliptic_curve::sec1::ToEncodedPoint};
 
 /// Serializes an AffinePoint to a compressed hexadecimal string
 pub fn serialize_point(point: AffinePoint) -> String {

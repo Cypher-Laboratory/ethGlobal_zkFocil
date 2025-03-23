@@ -1,25 +1,22 @@
 #![no_main]
 
 pico_sdk::entrypoint!(main);
-use fibonacci_lib::{FibonacciData, fibonacci};
+use lsag::lsag_verifier::{Lsag, LsagData, verify_lsag};
 use pico_sdk::io::{commit, read_as};
 
 pub fn main() {
-    // Read inputs `n` from the environment
-    let n: u32 = read_as();
+    let signature: Lsag = read_as();
 
-    let a: u32 = 0;
-    let b: u32 = 1;
+    let result = verify_lsag(signature.clone());
 
-    // Compute Fibonacci values starting from `a` and `b`
-    let (a_result, b_result) = fibonacci(a, b, n);
-
-    // Commit the assembled Fibonacci data as the public values in the Pico proof.
-    // This allows the values to be verified by others.
-    let result = FibonacciData {
-        n,
-        a: a_result,
-        b: b_result,
+    let result = LsagData {
+        ring: signature.ring,
+        c0: signature.c0,
+        message: signature.message,
+        responses: signature.responses,
+        key_image: signature.key_image,
+        linkability_flag: signature.linkability_flag.clone(),
+        verified: result,
     };
 
     commit(&result);

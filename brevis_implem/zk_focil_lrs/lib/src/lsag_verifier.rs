@@ -3,11 +3,11 @@ use crate::utils::scalar_from_hex::scalar_from_hex;
 use crate::utils::serialize_point::{deserialize_point, serialize_point};
 use crate::utils::serialize_ring::{deserialize_ring, serialize_ring};
 use crate::utils::{hash_to_secp256k1::hash_to_secp256k1, hex_to_decimal::hex_to_decimal};
-use base64::engine::general_purpose;
 use base64::Engine;
+use base64::engine::general_purpose;
 use core::str;
 use k256::{AffinePoint, Scalar};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Define a struct that matches the structure of the JSON string LSAG
 #[derive(Deserialize, Debug)]
@@ -21,6 +21,7 @@ pub struct StringifiedLsag {
     pub linkabilityFlag: String,
 }
 /// A struct to represent a LSAG signature
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Lsag {
     pub ring: Vec<AffinePoint>,
     pub message: String,
@@ -28,6 +29,17 @@ pub struct Lsag {
     pub responses: Vec<Scalar>,
     pub key_image: AffinePoint,
     pub linkability_flag: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct LsagData {
+    pub ring: Vec<AffinePoint>,
+    pub message: String,
+    pub c0: Scalar,
+    pub responses: Vec<Scalar>,
+    pub key_image: AffinePoint,
+    pub linkability_flag: Option<String>,
+    pub verified: bool,
 }
 /// Parameters required for the compute_c function
 pub struct Params {
