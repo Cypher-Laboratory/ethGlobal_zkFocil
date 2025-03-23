@@ -1,5 +1,6 @@
 pub mod utils;
 pub mod lsag_verifier;
+pub mod lottery;
 
 use elliptic_curve::PrimeField;
 pub use k256;
@@ -13,6 +14,7 @@ use crate::utils::serialize_ring::serialize_ring;
 use crate::utils::hash_to_secp256k1::hash_to_secp256k1;
 use crate::utils::hex_to_decimal::hex_to_decimal;
 use crate::lsag_verifier::{Lsag, Params, compute_c};
+
 use k256::{AffinePoint, Scalar};
 use rand;
 use rand_core::RngCore;
@@ -123,14 +125,7 @@ pub fn sign_lsag(
     }
 }
 
-pub fn generate_keypair() -> (Scalar, AffinePoint) {
-    let mut random_bytes = [0u8; 32];
-    rand::rng().fill_bytes(&mut random_bytes);
-    let scalar = Scalar::from_repr(random_bytes.into()).unwrap();
-    let public_key = (AffinePoint::GENERATOR * scalar).to_affine();
-    
-    (scalar, public_key)
-}
+
 
 pub fn create_signing_details(private_key: Scalar, ring: &[AffinePoint]) -> SigningDetails {
     let public_key = (AffinePoint::GENERATOR * private_key).to_affine();
@@ -146,6 +141,7 @@ pub fn create_signing_details(private_key: Scalar, ring: &[AffinePoint]) -> Sign
 
 #[cfg(test)]
 mod tests {
+    use crate::utils::generate_privatekey::generate_keypair;
     use super::*;
     use crate::lsag_verifier::verify_lsag;
     

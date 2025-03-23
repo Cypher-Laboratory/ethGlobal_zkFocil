@@ -6,3 +6,5 @@ pub mod scalar_to_string;
 pub mod serialize_point;
 pub mod serialize_ring;
 pub mod test_utils;
+pub mod generate_privatekey;
+pub mod key_image;
