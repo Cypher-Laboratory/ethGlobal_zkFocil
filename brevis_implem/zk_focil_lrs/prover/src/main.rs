@@ -1,8 +1,9 @@
 use lsag::{
-    SigningDetails,
+    SigningDetails, load_elf,
+    lsag_verifier::LsagData,
     lsag_verifier::{Lsag, verify_lsag},
     sign_lsag,
-    utils::generate_keypair,
+    utils::generate_privatekey::generate_keypair,
 };
 use pico_sdk::{client::DefaultProverClient, init_logger};
 fn main() {
@@ -42,23 +43,25 @@ fn main() {
     let public_buffer = proof.pv_stream.unwrap();
 
     // Deserialize public_buffer into Lsag
-    let public_values: Lsag = bincode::deserialize(&public_buffer).expect("Failed to deserialize");
+    let public_values: LsagData =
+        bincode::deserialize(&public_buffer).expect("Failed to deserialize");
 
     // Verify the public values
-    verify_public_values(signature, &public_values);
+    verify_public_values(&public_values);
 }
 
 /// Verifies that the computed Fibonacci values match the public values.
-fn verify_public_values(result: u32, public_values: &FibonacciData) {
-    println!(
-        "Public value n: {:?}, a: {:?}, b: {:?}",
-        public_values.n, public_values.a, public_values.b
-    );
+fn verify_public_values(public_values: &LsagData) {
+    println!("Public value: {:?}", public_values);
 
     // Compute Fibonacci values locally
-    let (result_a, result_b) = fibonacci(0, 1, n);
-
-    // Assert that the computed values match the public values
-    assert_eq!(result_a, public_values.a, "Mismatch in value 'a'");
-    assert_eq!(result_b, public_values.b, "Mismatch in value 'b'");
+    let result = verify_lsag(Lsag {
+        ring: public_values.ring.clone(),
+        message: public_values.message.clone(),
+        c0: public_values.c0.clone(),
+        responses: public_values.responses.clone(),
+        key_image: public_values.key_image,
+        linkability_flag: public_values.linkability_flag.clone(),
+    });
+    assert_eq!(result, public_values.verified, "Mismatch in verification");
 }

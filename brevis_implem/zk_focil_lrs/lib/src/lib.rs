@@ -16,6 +16,7 @@ use crate::utils::serialize_ring::serialize_ring;
 use k256::{AffinePoint, Scalar};
 use rand;
 use rand_core::RngCore;
+use std::fs;
 
 #[derive(Debug)]
 pub struct SigningDetails {
@@ -134,6 +135,12 @@ pub fn create_signing_details(private_key: Scalar, ring: &[AffinePoint]) -> Sign
         public_key,
         index,
     }
+}
+
+pub fn load_elf(path: &str) -> Vec<u8> {
+    fs::read(path).unwrap_or_else(|err| {
+        panic!("Failed to load ELF file from {}: {}", path, err);
+    })
 }
 
 #[cfg(test)]
