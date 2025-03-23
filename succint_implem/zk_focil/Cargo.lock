@@ -1540,6 +1540,7 @@ dependencies = [
  "digest 0.10.7",
  "elliptic-curve",
  "rfc6979",
+ "serdect",
  "signature",
  "spki",
 ]
@@ -1572,6 +1573,7 @@ dependencies = [
  "pkcs8",
  "rand_core",
  "sec1",
+ "serdect",
  "subtle",
  "zeroize",
 ]
@@ -1687,30 +1689,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "fibonacci-lib"
-version = "0.1.0"
-dependencies = [
- "alloy-sol-types 0.7.7",
-]
-
-[[package]]
-name = "fibonacci-program"
-version = "0.1.0"
-dependencies = [
- "alloy-sol-types 0.7.7",
- "fibonacci-lib",
- "sp1-zkvm",
-]
-
-[[package]]
 name = "fibonacci-script"
 version = "0.1.0"
 dependencies = [
  "alloy-sol-types 0.7.7",
+ "bincode",
  "clap",
  "dotenv",
- "fibonacci-lib",
  "hex",
+ "lsag",
  "serde",
  "serde_json",
  "sp1-build",
@@ -2357,6 +2344,7 @@ dependencies = [
  "ecdsa",
  "elliptic-curve",
  "once_cell",
+ "serdect",
  "sha2",
  "signature",
 ]
@@ -2474,6 +2462,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "234cf4f4a04dc1f57e24b96cc0cd600cf2af460d4161ac5ecdd0af8e1f3b2a38"
 dependencies = [
  "hashbrown 0.15.0",
+]
+
+[[package]]
+name = "lsag"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "elliptic-curve",
+ "hex",
+ "k256",
+ "num-bigint 0.4.6",
+ "num-traits",
+ "rand",
+ "regex",
+ "serde",
+ "serde_json",
+ "sha2",
+ "sha3",
+]
+
+[[package]]
+name = "lsag-programm"
+version = "0.1.0"
+dependencies = [
+ "alloy-sol-types 0.7.7",
+ "lsag",
+ "sp1-zkvm",
 ]
 
 [[package]]
@@ -3915,6 +3930,7 @@ dependencies = [
  "der",
  "generic-array 0.14.7",
  "pkcs8",
+ "serdect",
  "subtle",
  "zeroize",
 ]
@@ -3971,18 +3987,18 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.210"
+version = "1.0.219"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c8e3592472072e6e22e0a54d5904d9febf8508f65fb8552499a1abc7d1078c3a"
+checksum = "5f0e2c6ed6606019b4e29e69dbaba95b11854410e5347d525002456dbbb786b6"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.210"
+version = "1.0.219"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "243902eda00fad750862fc144cea25caca5e20d615af0a81bee94ca738f1df1f"
+checksum = "5b0276cf7f2c73365f7157c8123c21cd9a50fbbd844757af28ca1f5925fc2a00"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4029,6 +4045,16 @@ dependencies = [
  "form_urlencoded",
  "itoa",
  "ryu",
+ "serde",
+]
+
+[[package]]
+name = "serdect"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a84f14a19e9a014bb9f4512488d9829a68e04ecabffb0f9904cd1ace94598177"
+dependencies = [
+ "base16ct",
  "serde",
 ]
 
