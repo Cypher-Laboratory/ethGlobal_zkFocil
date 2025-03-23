@@ -41,9 +41,7 @@ Our implementation uses Linkable Ring Signatures, which allow:
 The project consists of two main components:
 
 1. **Technical Implementation** 💻
-   - Core zkFOCIL protocol implementation
-   - Comprehensive benchmarks demonstrating performance and scalability
-   - Integration with Ethereum's existing architecture
+   - Core zkFOCIL protocol implementation tested with 2 zkvms (succinct & Pico)
 
 2. **Educational Frontend** 📚
    - Interactive interface explaining the protocol
